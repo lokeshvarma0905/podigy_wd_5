@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #4682B4);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: none;
+            background-color: #FF6347;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #FF4500;
+        }
+
+        .weather-info {
+            margin-top: 20px;
+        }
+
+        .weather-info h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .weather-info p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="locationInput" placeholder="Enter location">
+        <button onclick="fetchWeatherByLocation()">Get Weather</button>
+        <button onclick="fetchWeatherByUserLocation()">Use My Location</button>
+
+        <div class="weather-info" id="weatherInfo"></div>
+    </div>
+
+    <script>
+        const apiKey = '3e39eb475d41c3577fb4bd0ad1bc10a8';
+
+        function fetchWeatherByLocation() {
+            const location = document.getElementById('locationInput').value;
+            if (location) {
+                fetchWeatherData(location);
+            } else {
+                alert('Please enter a location');
+            }
+        }
+
+        function fetchWeatherByUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetchWeatherData(null, lat, lon);
+                }, () => {
+                    alert('Unable to retrieve your location');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser');
+            }
+        }
+
+        function fetchWeatherData(location, lat = null, lon = null) {
+            let url;
+            if (location) {
+                url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`;
+            } else {
+                url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => displayWeather(data))
+                .catch(error => alert('Error fetching weather data'));
+        }
+
+        function displayWeather(data) {
+            if (data.cod === 200) {
+                const weatherInfo = `
+                    <h2>${data.name}</h2>
+                    <p>${data.weather[0].description}</p>
+                    <p>Temperature: ${data.main.temp} °C</p>
+                    <p>Humidity: ${data.main.humidity}%</p>
+                    <p>Wind Speed: ${data.wind.speed} m/s</p>
+                `;
+                document.getElementById('weatherInfo').innerHTML = weatherInfo;
+            } else {
+                alert('Location not found');
+            }
+        }
+    </script>
+</body>
+</html>
