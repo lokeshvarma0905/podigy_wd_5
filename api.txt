@@ -1,0 +1,1 @@
+In this weather web page we have used a api from openweatherapp for free on signup
